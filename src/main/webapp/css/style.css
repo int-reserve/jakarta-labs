@@ -1,0 +1,189 @@
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1,
+h2,
+h3 {
+  color: #34495e;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+li {
+  background: #ffffff;
+  margin: 10px 0;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+.btn {
+  background-color: #3498db;
+  color: white !important;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #2980b9;
+  text-decoration: none;
+}
+
+/* Cinema seats layout */
+.cinema-hall {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+}
+
+.screen {
+  width: 100%;
+  max-width: 400px;
+  height: 40px;
+  background: #bdc3c7;
+  margin-bottom: 40px;
+  border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+  text-align: center;
+  line-height: 40px;
+  color: #7f8c8d;
+  font-weight: bold;
+  letter-spacing: 5px;
+  box-shadow: 0 5px 15px rgba(189, 195, 199, 0.5);
+}
+
+.seat-container {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 350px;
+  justify-content: center;
+  gap: 12px;
+}
+
+.seat {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px 8px 4px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+
+.seat-free {
+  background-color: #2ecc71;
+  box-shadow: 0 4px #27ae60;
+  color: white;
+}
+
+.seat-free:hover {
+  transform: translateY(2px);
+  box-shadow: 0 2px #27ae60;
+}
+
+.seat-free button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.seat-booked {
+  background-color: #e74c3c;
+  box-shadow: 0 4px #c0392b;
+  color: white;
+  cursor: not-allowed;
+  flex-direction: column;
+  font-size: 11px;
+}
+
+/* Admin forms and tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-top: 15px;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+th {
+  background-color: #34495e;
+  color: white;
+}
+
+.admin-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 30px;
+}
+
+.admin-form input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  box-sizing: border-box;
+}

@@ -42,6 +42,8 @@ target/
 *.ear
 *.rar
 
+tools/
+
 tools/apache-tomcat-*/logs/
 tools/apache-tomcat-*/temp/
 tools/apache-tomcat-*/work/
