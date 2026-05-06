@@ -16,8 +16,14 @@ import java.util.UUID;
 public class AdminServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String editId = req.getParameter("editId");
+        if (editId != null) {
+            MovieSession sessionToEdit = DataStore.getSession(editId);
+            req.setAttribute("editSession", sessionToEdit);
+        }
         req.setAttribute("sessions", DataStore.getAllSessions());
         req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
+
     }
 
     @Override
@@ -27,14 +33,16 @@ public class AdminServlet extends HttpServlet {
         if ("add".equals(action)) {
             String title = req.getParameter("movieTitle");
             String priceStr = req.getParameter("price");
-            
-            if (title != null && !title.trim().isEmpty() && priceStr != null) {
+            String timeStr = req.getParameter("startTime");
+
+            if (title != null && !title.trim().isEmpty() && priceStr != null && timeStr != null && !timeStr.isEmpty()) {
                 try {
+                    LocalDateTime startTime = LocalDateTime.parse(timeStr);
                     double price = Double.parseDouble(priceStr);
-                    MovieSession newSession = new MovieSession(UUID.randomUUID().toString(), title, LocalDateTime.now().plusDays(1), price);
+                    MovieSession newSession = new MovieSession(UUID.randomUUID().toString(), title, startTime, price);
                     DataStore.addSession(newSession);
                 } catch (NumberFormatException e) {
-                    // Ignore for simplistic lab
+                    // pass for the sake of simplicity in lab work
                 }
             }
         } else if ("delete".equals(action)) {
@@ -42,7 +50,20 @@ public class AdminServlet extends HttpServlet {
             if (id != null) {
                 DataStore.deleteSession(id);
             }
+        } else if ("update".equals(action)) {
+            String id = req.getParameter("sessionId");
+            String title = req.getParameter("movieTitle");
+            String priceStr = req.getParameter("price");
+            String timeStr = req.getParameter("startTime");
+
+            MovieSession existing = DataStore.getSession(id);
+            if (existing != null) {
+                existing.setMovieTitle(title);
+                existing.setPrice(Double.parseDouble(priceStr));
+                existing.setStartTime(LocalDateTime.parse(timeStr));
+            }
         }
+
         
         resp.sendRedirect(req.getContextPath() + "/admin");
     }
