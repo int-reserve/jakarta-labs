@@ -1,0 +1,26 @@
+# Build output
+target/
+
+# Version control
+.git/
+.gitignore
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tools — exclude Tomcat and IntelliJ style; keep glassfish7
+tools/apache-tomcat-*
+tools/intellij-java-google-style.xml
+
+# Maven wrapper (not needed in Docker build — uses the official Maven image)
+.mvn/
+mvnw
+mvnw.cmd

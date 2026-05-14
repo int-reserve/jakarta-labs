@@ -8,10 +8,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Constraint(validatedBy = ValidSessionTimeValidator.class)
-@Target({ ElementType.FIELD, ElementType.METHOD })
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidSessionTime {
-    String message() default "Session time must be in the future and strictly on the hour or half-hour (e.g. 18:00 or 18:30)";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
+
+  String message() default "Session time must be in the future and strictly on the hour or half-hour (e.g. 18:00 or 18:30)";
+
+  Class<?>[] groups() default {};
+
+  Class<? extends Payload>[] payload() default {};
 }

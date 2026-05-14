@@ -1,8 +1,9 @@
 package edu.kpi.servlet;
 
 import edu.kpi.model.MovieSession;
-import edu.kpi.repository.DataStore;
+import edu.kpi.service.MovieSessionService;
 
+import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,43 +11,32 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @WebServlet("/sessions")
 public class MovieSessionServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String titleParam = req.getParameter("title");
-        String pageParam = req.getParameter("page");
 
-        int page = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
-        int size = 3; // setting manually for testing purposes and simplicity
+  @EJB
+  private MovieSessionService sessionService;
 
-        List<MovieSession> allSessions = DataStore.getAllSessions();
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String titleParam = req.getParameter("title");
+    String pageParam = req.getParameter("page");
 
-        if (titleParam != null && !titleParam.trim().isEmpty()) {
-            allSessions = allSessions.stream()
-                .filter(s -> s.getMovieTitle().toLowerCase().contains(titleParam.toLowerCase()))
-                .collect(Collectors.toList());
-        }
+    int page = (pageParam != null && !pageParam.isEmpty()) ? Integer.parseInt(pageParam) : 1;
+    int size = 3;
 
-        int total = allSessions.size();
-        int totalPages = (int) Math.ceil((double) total / size);
-        int offset = (page - 1) * size;
+    List<MovieSession> pagedSessions = sessionService.getFilteredSessions(titleParam, page, size);
 
-        List<MovieSession> pagedSessions;
-        if (offset >= total) {
-            pagedSessions = List.of();
-        } else {
-            int toIndex = Math.min(offset + size, total);
-            pagedSessions = allSessions.subList(offset, toIndex);
-        }
+    long total = sessionService.countSessions(titleParam);
+    int totalPages = (int) Math.ceil((double) total / size);
 
-        req.setAttribute("sessions", pagedSessions);
-        req.setAttribute("currentPage", page);
-        req.setAttribute("totalPages", totalPages);
-        req.setAttribute("searchTitle", titleParam != null ? titleParam : "");
+    req.setAttribute("sessions", pagedSessions);
+    req.setAttribute("currentPage", page);
+    req.setAttribute("totalPages", totalPages);
+    req.setAttribute("searchTitle", titleParam != null ? titleParam : "");
 
-        req.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(req, resp);
-    }
+    req.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(req, resp);
+  }
 }

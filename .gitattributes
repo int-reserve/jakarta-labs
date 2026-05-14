@@ -1,0 +1,20 @@
+# Normalize line endings in Git.
+# All text files default to LF in the repo; Windows tools may check out with CRLF.
+* text=auto
+
+# Shell scripts must always use LF — CRLF breaks the shebang on Linux.
+*.sh text eol=lf
+
+# SQL and config files: LF only
+*.sql  text eol=lf
+*.xml  text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Binaries — do not touch line endings
+*.jar  binary
+*.war  binary
+*.zip  binary
+*.png  binary
+*.jpg  binary

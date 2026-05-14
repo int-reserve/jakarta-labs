@@ -1,70 +1,107 @@
 package edu.kpi.servlet;
 
 import edu.kpi.model.MovieSession;
-import edu.kpi.repository.DataStore;
+import edu.kpi.service.MovieSessionService;
 
+import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @WebServlet("/admin")
 public class AdminServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String editId = req.getParameter("editId");
-        if (editId != null) {
-            MovieSession sessionToEdit = DataStore.getSession(editId);
-            req.setAttribute("editSession", sessionToEdit);
-        }
-        req.setAttribute("sessions", DataStore.getAllSessions());
-        req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
 
+  @EJB
+  private MovieSessionService sessionService;
+
+  private final Validator validator;
+
+  public AdminServlet() {
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    this.validator = factory.getValidator();
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String editIdParam = req.getParameter("editId");
+    if (editIdParam != null && !editIdParam.isEmpty()) {
+      try {
+        long editId = Long.parseLong(editIdParam);
+        MovieSession sessionToEdit = sessionService.getSession(editId);
+        req.setAttribute("editSession", sessionToEdit);
+      } catch (NumberFormatException ignored) {
+      }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
+    req.setAttribute("sessions", sessionService.getAllSessions());
+    req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
+  }
+
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String action = req.getParameter("action");
+
+    try {
+      if ("add".equals(action) || "update".equals(action)) {
+        String sessionIdParam = req.getParameter("sessionId");
+
+        String title = req.getParameter("movieTitle");
+        double price = Double.parseDouble(req.getParameter("price"));
+        LocalDateTime startTime = LocalDateTime.parse(req.getParameter("startTime"));
         
+        Long sessionId = null;
+        if ("update".equals(action) && sessionIdParam != null && !sessionIdParam.isEmpty()) {
+          sessionId = Long.parseLong(sessionIdParam);
+        }
+
+        MovieSession session = new MovieSession(sessionId, title, startTime, price);
+
+        Set<ConstraintViolation<MovieSession>> violations = validator.validate(session);
+        if (!violations.isEmpty()) {
+          List<String> errors = violations.stream()
+              .map(ConstraintViolation::getMessage)
+              .collect(Collectors.toList());
+          req.setAttribute("errors", errors);
+          if ("update".equals(action)) {
+            req.setAttribute("editSession", session);
+          }
+          req.setAttribute("sessions", sessionService.getAllSessions());
+          req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
+          return;
+        }
+
         if ("add".equals(action)) {
-            String title = req.getParameter("movieTitle");
-            String priceStr = req.getParameter("price");
-            String timeStr = req.getParameter("startTime");
-
-            if (title != null && !title.trim().isEmpty() && priceStr != null && timeStr != null && !timeStr.isEmpty()) {
-                try {
-                    LocalDateTime startTime = LocalDateTime.parse(timeStr);
-                    double price = Double.parseDouble(priceStr);
-                    MovieSession newSession = new MovieSession(UUID.randomUUID().toString(), title, startTime, price);
-                    DataStore.addSession(newSession);
-                } catch (NumberFormatException e) {
-                    // pass for the sake of simplicity in lab work
-                }
-            }
-        } else if ("delete".equals(action)) {
-            String id = req.getParameter("sessionId");
-            if (id != null) {
-                DataStore.deleteSession(id);
-            }
-        } else if ("update".equals(action)) {
-            String id = req.getParameter("sessionId");
-            String title = req.getParameter("movieTitle");
-            String priceStr = req.getParameter("price");
-            String timeStr = req.getParameter("startTime");
-
-            MovieSession existing = DataStore.getSession(id);
-            if (existing != null) {
-                existing.setMovieTitle(title);
-                existing.setPrice(Double.parseDouble(priceStr));
-                existing.setStartTime(LocalDateTime.parse(timeStr));
-            }
+          sessionService.addSession(session);
+        } else {
+          sessionService.updateSession(sessionId, session);
         }
 
-        
-        resp.sendRedirect(req.getContextPath() + "/admin");
+      } else if ("delete".equals(action)) {
+        long id = Long.parseLong(req.getParameter("sessionId"));
+        sessionService.deleteSession(id);
+      }
+    } catch (Exception e) {
+      req.setAttribute("errors",
+          List.of("Помилка обробки форми: перевірте формат введених даних."));
+      req.setAttribute("sessions", sessionService.getAllSessions());
+      req.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(req, resp);
+      return;
     }
+
+    resp.sendRedirect(req.getContextPath() + "/admin");
+  }
 }

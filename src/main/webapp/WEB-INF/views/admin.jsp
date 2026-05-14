@@ -54,12 +54,14 @@ uri="jakarta.tags.core" prefix="c" %>
       <tr>
         <th>Movie Title</th>
         <th>Price</th>
+        <th>Time</th>
         <th>Action</th>
       </tr>
       <c:forEach var="session" items="${sessions}">
         <tr>
           <td><c:out value="${session.movieTitle}" /></td>
           <td>$<c:out value="${session.price}" /></td>
+          <td><c:out value="${session.startTime}" /></td>
           <td style="display: flex; gap: 10px; align-items: center;">
             <a href="${pageContext.request.contextPath}/admin?editId=${session.id}"
                class="btn"

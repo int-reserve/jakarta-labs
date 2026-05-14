@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cinema_db
+    environment:
+      POSTGRES_DB:       moviesdb
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d moviesdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cinema_app
+    environment:
+      DB_HOST:     db
+      DB_PORT:     "5432"
+      DB_NAME:     moviesdb
+      DB_USER:     postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"   # application
+      - "4848:4848"   # GlassFish admin console
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/jakarta-labs/sessions"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+volumes:
+  db_data:

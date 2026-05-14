@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC
+  "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN"
+  "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+<resources>
+  <jdbc-connection-pool
+    name="MoviesPool"
+    datasource-classname="org.postgresql.ds.PGSimpleDataSource"
+    res-type="javax.sql.DataSource">
+    <property name="ServerName" value="localhost"/>
+    <property name="PortNumber" value="5432"/>
+    <property name="DatabaseName" value="moviesdb"/>
+    <property name="User" value="postgres"/>
+    <property name="Password" value="postgres"/>
+  </jdbc-connection-pool>
+
+  <jdbc-resource
+    pool-name="MoviesPool"
+    jndi-name="jdbc/moviesdb"/>
+</resources>
